@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Settings.qml</file>
+        <file>Button.qml</file>
+        <file>BottomLine.qml</file>
+        <file>Page.qml</file>
+        <file>PageConnect.qml</file>
+        <file>App.qml</file>
+        <file>PageDeviceManager.qml</file>
+    </qresource>
+</RCC>
