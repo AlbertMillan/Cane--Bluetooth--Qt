@@ -1,15 +1,22 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QLoggingCategory>
 #include <QQmlContext>
 
 #include "deviceFinder.h"
 #include "deviceHandler.h"
+#include "optionsmodel.h"
+#include "optionshandler.h"
+
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
 
     QGuiApplication app(argc, argv);
+
+
+    OptionsHandler optionsHandler;
 
     DeviceHandler deviceHandler;
 
@@ -19,17 +26,17 @@ int main(int argc, char *argv[])
 
     qmlRegisterSingletonType(QUrl("qrc:/Settings.qml"), "Settings", 1, 0, "Settings");
 
+    qmlRegisterType<OptionsModel>("Options", 1, 0, "OptionsModel");
+    qmlRegisterUncreatableType<OptionsHandler>("Options", 1, 0, "OptionsHandler", QStringLiteral("OptionsList should not be created in QML"));
+
     QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-//    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-//                     &app, [url](QObject *obj, const QUrl &objUrl) {
-//        if (!obj && url == objUrl)
-//            QCoreApplication::exit(-1);
-//    }, Qt::QueuedConnection);
-
+    engine.rootContext()->setContextProperty("optionsHandler", &optionsHandler);
     engine.rootContext()->setContextProperty("deviceFinder", &deviceFinder);
+    engine.rootContext()->setContextProperty("deviceHandler", &deviceHandler);
 
-    engine.load(url);
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+
+
 
     return app.exec();
 }

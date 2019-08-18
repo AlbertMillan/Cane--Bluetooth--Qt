@@ -8,5 +8,18 @@
         <file>PageConnect.qml</file>
         <file>App.qml</file>
         <file>PageDeviceManager.qml</file>
+        <file>BluetoothAlarmDialog.qml</file>
+        <file>images/bt_off_to_on.png</file>
+        <file>deviceFinder.cpp</file>
+        <file>deviceFinder.h</file>
+        <file>deviceHandler.cpp</file>
+        <file>deviceHandler.h</file>
+        <file>deviceInfo.cpp</file>
+        <file>deviceInfo.h</file>
+        <file>main.cpp</file>
+        <file>PageRegister.qml</file>
+        <file>InputText.qml</file>
+        <file>ButtonRadio.qml</file>
+        <file>PageUsers.qml</file>
     </qresource>
 </RCC>

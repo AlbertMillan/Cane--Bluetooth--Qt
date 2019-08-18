@@ -19,6 +19,7 @@ Item {
     readonly property color sliderColor: "#6ccaf2"
     readonly property color errorColor: "#ba3f62"
     readonly property color infoColor: "#3fba62"
+    readonly property color placeholderColor: "#8c8c8c"
 
     // Font sizes
     property real microFontSize: hugeFontSize * 0.2
@@ -36,17 +37,18 @@ Item {
     property real fieldMargin: fieldHeight * 0.5
     property real buttonHeight: wHeight * 0.08
     property real buttonRadius: buttonHeight * 0.1
+    property real radioBtnHeight: wHeight *0.2
 
     // Some help functions
-//    function widthForHeight(h, ss)
-//    {
-//        return h/ss.height * ss.width;
-//    }
+    function widthForHeight(h, ss)
+    {
+        return h/ss.height * ss.width;
+    }
 
-//    function heightForWidth(w, ss)
-//    {
-//        return w/ss.width * ss.height;
-//    }
+    function heightForWidth(w, ss)
+    {
+        return w/ss.width * ss.height;
+    }
 
 }
 

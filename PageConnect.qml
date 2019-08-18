@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.12
 import Settings 1.0
 import "."
 
@@ -48,12 +48,26 @@ Page {
                 height: Settings.fieldHeight*1.2
                 width: parent.width
                 color: index % 2 === 0 ? Settings.delegate1Color : Settings.delegate2Color
+                property bool selected: false
 
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        deviceFinder.connectToService(modelData.deviceAddress)
-                        app.showPage("PageDeviceManager.qml")
+
+                        if( !deviceFinder.scanning ) {
+
+                            if( !deviceFinder.deviceLimitReached && !box.selected ) {
+                                deviceFinder.storeAddress(modelData.deviceAddress)
+                                box.color = "#33ccff"
+                                box.selected = true
+                            }
+                            else if(box.selected) {
+                                deviceFinder.removeAddress(modelData.deviceAddress)
+                                box.color = index % 2 === 0 ? Settings.delegate1Color : Settings.delegate2Color
+                                box.selected = false
+                            }
+
+                        }
                     }
                 }
 
@@ -85,13 +99,10 @@ Page {
     Button {
         id: searchButton
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
+        anchors.bottom: connectButton.top
         anchors.bottomMargin: Settings.fieldMargin
-//        width: viewContainer.width
         width: parent.width - Settings.fieldMargin*2
-//        height: Settings.fieldHeight
-//        width: Settings.wWidth
-        height: 50
+        height: Settings.fieldHeight
         enabled: !deviceFinder.scanning
         onClicked: deviceFinder.startSearch()
 
@@ -100,6 +111,30 @@ Page {
             font.pixelSize: Settings.tinyFontSize
             text: qsTr("START SEARCH")
             color: searchButton.enabled ? Settings.textColor : Settings.disabledTextColor
+        }
+    }
+
+    Button {
+        id: connectButton
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Settings.fieldMargin
+        width: parent.width - Settings.fieldMargin*2
+        height: Settings.fieldHeight
+        enabled: deviceFinder.selected === 0
+        onClicked: {
+//            Connect to Devices
+            console.log("CONNECTING")
+            deviceFinder.connectToService()
+
+            app.showPage("PageDeviceManager.qml")
+        }
+
+        Text {
+            anchors.centerIn: parent
+            font.pixelSize: Settings.tinyFontSize
+            text: qsTr("CONTINUAR") + "("+ deviceFinder.selected +")"
+            color: connectButton.enabled ? Settings.textColor : Settings.disabledTextColor
         }
     }
 }

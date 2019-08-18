@@ -1,4 +1,5 @@
 import QtQuick 2.12
+import Settings 1.0
 import "."
 
 Page {
@@ -7,40 +8,44 @@ Page {
     errorMessage: deviceHandler.error
     infoMessage: deviceHandler.info
 
+
     Button {
-        id: uploadData
+        id: startbtn
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: fetchData.top
+        anchors.bottom: stopbtn.top
         anchors.bottomMargin: Settings.fieldMargin
         width: parent.width - Settings.fieldMargin*2
-        height: 50
+        height: Settings.fieldHeight
         onClicked: {
-            console.log("Upload btn");
+
+            deviceHandler.setUnitMeasurement(optionsHandler.unit, optionsHandler.time);
+            deviceHandler.startMeasurement();
+            deviceFinder.test()
         }
 
         Text {
             anchors.centerIn: parent
             font.pixelSize: Settings.tinyFontSize
-            text: qsTr("UPLOAD DATA")
+            text: qsTr("START")
             color: Settings.textColor
         }
     }
 
     Button {
-        id: fetchData
+        id: stopbtn
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Settings.fieldMargin
         width: parent.width - Settings.fieldMargin*2
-        height: 50
+        height: Settings.fieldHeight
         onClicked: {
-            console.log("Fetch btn")
+            deviceHandler.stopMeasurement();
         }
 
         Text {
             anchors.centerIn: parent
             font.pixelSize: Settings.tinyFontSize
-            text: qsTr("FETCH DATA")
+            text: qsTr("STOP")
             color: Settings.textColor
         }
     }

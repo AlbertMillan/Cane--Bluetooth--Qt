@@ -4,7 +4,7 @@
 
 DeviceFinder::DeviceFinder(DeviceHandler *handler, QObject *parent) : QObject (parent), m_deviceHandler(handler) {
     m_deviceDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    m_deviceDiscoveryAgent->setLowEnergyDiscoveryTimeout(5000);
+    m_deviceDiscoveryAgent->setLowEnergyDiscoveryTimeout(10000);
 
     // Vincula accion (e.g. 'deviceDiscovered') con metodos internos (e.g. 'addDevice')
     connect(m_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceFinder::addDevice);
@@ -26,45 +26,88 @@ bool DeviceFinder::scanning() const {
 
 void DeviceFinder::startSearch() {
 //    clearMessages();
+
+    m_addresses.clear();
+
 //    m_deviceHandler->setDevice(nullptr);
     qDeleteAll(m_devices);
     m_devices.clear();
 
     emit devicesChanged();
 
-    m_deviceDiscoveryAgent->start();
+    m_deviceDiscoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
     emit scanningChanged();
 }
 
-void DeviceFinder::connectToService(const QString &address) {
+void DeviceFinder::connectToService() {
     m_deviceDiscoveryAgent->stop();
 
-    DeviceInfo *currentDevice = nullptr;
+    QVector<DeviceInfo *> selectedDevices;
     for (QObject *entry : qAsConst(m_devices)) {
         auto device = qobject_cast<DeviceInfo *>(entry);
-        if( device && device->getAddress() == address ) {
+        if( device && m_addresses.contains(device->getAddress()) ) {
             qDebug() << "Device found:" << device->getName();
-            currentDevice = device;
-            break;
+            selectedDevices.append(device);
+            deviceInformation = device;
+//            break;
         }
     }
 
-    if( currentDevice ) {
-        qDebug() << "Connect to service...";
-        m_deviceHandler->setDevice(currentDevice);
+//    for(int i = 0; i < selectedDevices.size(); i++) {
+//        if( selectedDevices[i] ) {
+//            qDebug() << "Connect to service..." << selectedDevices[i]->getName();
+//            m_deviceHandler->setDevice(selectedDevices[i]);
+//        }
+//    }
+
+    if( selectedDevices[0] ) {
+        qDebug() << "Connect to service..." << selectedDevices[0]->getName();
+        m_deviceHandler->setDevice(selectedDevices[0]);
     }
-//    clearMessages();
+
+    //    clearMessages();
+}
+
+void DeviceFinder::storeAddress(const QString &address)
+{
+    if( m_addresses.isEmpty() ) {
+        m_addresses.append(address);
+        emit selectedChanged();
+    }
+    else if( m_addresses.size() < max_devices && !m_addresses.contains(address)) {
+        m_addresses.append(address);
+        emit selectedChanged();
+    }
+}
+
+void DeviceFinder::removeAddress(const QString &address)
+{
+    if(m_addresses.removeOne(address)) {
+        qDebug() << m_addresses.size();
+        emit selectedChanged();
+    }
+}
+
+void DeviceFinder::setMaxDevices(const int nPoles)
+{
+    max_devices = nPoles;
+    emit selectedChanged();
+}
+
+void DeviceFinder::test()
+{
+    qDebug() << "Connect to service..." << deviceInformation->getName();
+    secondDeviceHandler->setDevice(deviceInformation);
 }
 
 
 void DeviceFinder::addDevice(const QBluetoothDeviceInfo &device) {
-
-    qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
-
+//    qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
 
     // If device is LowEnergy-device, add to the list
     if( device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration ) {
+        qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
         m_devices.append(new DeviceInfo(device));
 //        setInfo(tr("Low Energy device found. Scanning more..."));
         emit devicesChanged();
@@ -103,4 +146,14 @@ QVariant DeviceFinder::devices()
 {
     // Returns a copy 'm_devices' (see Q_PROPERTY in 'deviceFinder.h')
     return QVariant::fromValue(m_devices);
+}
+
+bool DeviceFinder::limit() const
+{
+    return m_addresses.size() >= max_devices;
+}
+
+int DeviceFinder::selected() const
+{
+    return max_devices - m_addresses.size();
 }

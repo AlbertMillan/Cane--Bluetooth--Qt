@@ -15,7 +15,8 @@ Item {
     function init()
     {
         opacity = 1.0
-        showPage("PageConnect.qml")
+//        showPage("PageConnect.qml")
+        showPage("PageRegister.qml")
     }
 
     function prevPage()
@@ -35,7 +36,6 @@ Item {
     Loader {
         id: pageLoader
         anchors.fill: parent
-        asynchronous: false
         source: ""
         onStatusChanged: {
             if (status === Loader.Ready)
@@ -61,5 +61,11 @@ Item {
         default: break;
         }
     }
+
+//    BluetoothAlarmDialog {
+//        id: btAlarmDialog
+//        anchors.fill: parent
+//        visible: !connectionHandler.alive
+//    }
 
 }

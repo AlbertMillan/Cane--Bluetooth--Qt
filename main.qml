@@ -14,8 +14,8 @@ Window {
     color: Settings.backgroundColor
 
     Component.onCompleted: {
-//        Settings.wWidth = Qt.binding(function() {return width})
-//        Settings.wHeight = Qt.binding(function() {return height})
+        Settings.wWidth = Qt.binding(function() {return width})
+        Settings.wHeight = Qt.binding(function() {return height})
     }
 
     Loader {
@@ -27,7 +27,6 @@ Window {
         onStatusChanged: {
             if( status == Loader.Ready ){
                 appLoader.item.init()
-//                appLoader.item.forceActiveFocus();
             }
         }
     }
